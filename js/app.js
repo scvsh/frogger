@@ -5,13 +5,15 @@ let numCols = 5;
 class Enemy {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    constructor() {
+    constructor(array = [0, 101 / 2], speed = 0) {
         this.sprite = 'images/enemy-bug.png';
-        this.x = 0;
+        this.x = array[0];
+        this.y = array[1];
+        this.speed = speed;
     }
 
     update(dt) {
-        this.x += dt*2;
+        this.x += dt * this.speed;
 
     }
     //
@@ -76,14 +78,21 @@ class Player {
 
 let allEnemies = [];
 let player = new Player();
-for (let i = 0; i < 10; i++) {
-    allEnemies.push(new Enemy());
-}
+
+
+
+
+
+setInterval(() => {
+    allEnemies.push(new Enemy([randStep(-500, -83, 100), randStep(101 / 2, 83 * 3, 83)], randStep(0, 400, 30)))
+}, 300);
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
-
+function randStep(min, max, step) {
+    return min + (step * Math.floor(Math.random() * (max - min) / step));
+}
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
