@@ -1,6 +1,73 @@
-// Enemies our player must avoid
-let numRows = 6;
-let numCols = 5;
+class GameBoard {
+    // Dashboard-like class, contains all necessary 
+    // game parameters
+    constructor() {
+        // GameBoard constants
+        this.numRows = 6;
+        this.numCols = 5;
+
+        // Initialize game entities
+        this.allEnemies = [];
+
+        // Start new game
+        this.setInputHandler();
+        this.startGame();
+    }
+    
+    startGame() {
+        // Clear enemy list
+        this.allEnemies = [];
+
+        // enemyEmitter is an Enemy class generator, which creates
+        // a new Enemy instance every 500ms, and removes unneeded instances
+        this.enemyEmitter = setInterval(() => {
+            currentGame.allEnemies.push(
+                new Enemy(
+                    [this.randStep(-500, -83, 100), this.randStep(101 / 2, 83 * 3, 83)], 
+                     this.randStep(100, 500, 20)));
+            this.killInvisible();
+        }, 500);
+    }
+
+    winGame() {
+        // Stop new enemy creation
+        clearInterval(this.enemyEmitter);
+        for (let i in currentGame.allEnemies) { currentGame.allEnemies[i].stop() };
+        alert('You won the game!')
+
+        // Put player to the starting position and restart the game
+        player.reset();
+        this.startGame();
+    }
+    
+    // Clear unreachable enemies by deleting coorresponding
+    // class instance
+    killInvisible() {
+        for (let i in currentGame.allEnemies) {
+            if (currentGame.allEnemies[i].x >= 505) {
+                delete currentGame.allEnemies[i];
+            }
+        }
+    }
+
+    // Set keyboard input handler
+    setInputHandler() {
+        document.addEventListener('keyup', function(e) {
+            var allowedKeys = {
+                37: 'left',
+                38: 'up',
+                39: 'right',
+                40: 'down'
+            };
+            player.handleInput(allowedKeys[e.keyCode]);
+        });
+    }
+
+    // Random position generator with step
+    randStep(min, max, step) {
+        return min + (step * Math.floor(Math.random() * (max - min) / step));
+    }
+}
 
 class Enemy {
     // The image/sprite for our enemies, this uses
@@ -14,39 +81,57 @@ class Enemy {
 
     update(dt) {
         this.x += dt * this.speed;
-
     }
-    //
-    // Draw the enemy on the screen, required method for game
-    // 
+
+    stop() {
+        this.speed = 0;
+    }
+
+    // Draw the enemy on the screen
     render() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
-// You should multiply any movement by the dt parameter
-// which will ensure the game runs at the same speed for
-// all computers.
-
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
 class Player {
     constructor() {
+        // Create player's sprite on the starting postition.
         this.sprite = 'images/char-boy.png';
-        this.x = numCols / 2 * 83; //Engine.numCols/2 * 83; 
-        this.y = (numRows - 2) * 101; //Engine.numCols/2 * 83;
+        this.x = currentGame.numCols / 2 * 83;
+        this.y = (currentGame.numRows - 2) * 101;
     }
 
     update() {
-        return true;
+        // Check collision between player and an enemy.
+        // Reset player's position if collision happend.
+        for (let i in currentGame.allEnemies) {
+            if ((this.y == currentGame.allEnemies[i].y + 21.5) && (Math.abs(this.x - currentGame.allEnemies[i].x) <= 83 * 0.85)) {
+                this.x = currentGame.numCols / 2 * 83;
+                this.y = (currentGame.numRows - 2) * 101;
+            }
+        }
+
+        // Check player position, reaching the water row wins the game. 
+        // Emitter stops and every enemy is frozen.
+        if (this.y <= 0) {
+            this.render();
+            // Set timeout to render the last frame of the current game
+            setTimeout( (()=>{ currentGame.winGame() }), 1) 
+        }
     }
+
+    // Render the player's sprite.
     render() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
+    
+    reset() {
+    // Reset player position on the screen
+        player.x = currentGame.numCols / 2 * 83;
+        player.y = (currentGame.numRows - 2) * 101;
+    }
 
+    // Input handle method. Uses switch to determine player's position relative to the canvas limits.
     handleInput(e) {
         switch (e) {
             case 'left':
@@ -76,33 +161,6 @@ class Player {
     }
 }
 
-let allEnemies = [];
+// Initialize game and player
+let currentGame = new GameBoard();
 let player = new Player();
-
-
-
-
-
-setInterval(() => {
-    allEnemies.push(new Enemy([randStep(-500, -83, 100), randStep(101 / 2, 83 * 3, 83)], randStep(0, 400, 30)))
-}, 300);
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
-
-function randStep(min, max, step) {
-    return min + (step * Math.floor(Math.random() * (max - min) / step));
-}
-
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
-document.addEventListener('keyup', function(e) {
-    var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down'
-    };
-
-    player.handleInput(allowedKeys[e.keyCode]);
-});
