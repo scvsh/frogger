@@ -15,7 +15,7 @@ To start playing:
 To get started developing right away:
 
 * Fork or clone this repository
-* Open the [`app.js`](src/app.js) in your favorite browser
+* Open the [`app.js`](src/app.js) in your favorite editor
 
 ## Project Structure
 ```bash
