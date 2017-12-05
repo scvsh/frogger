@@ -13,7 +13,7 @@ class GameBoard {
         this.setInputHandler();
         this.startGame();
     }
-    
+
     startGame() {
         // Clear enemy list
         this.allEnemies = [];
@@ -23,8 +23,8 @@ class GameBoard {
         this.enemyEmitter = setInterval(() => {
             currentGame.allEnemies.push(
                 new Enemy(
-                    [this.randStep(-500, -83, 100), this.randStep(101 / 2, 83 * 3, 83)], 
-                     this.randStep(100, 500, 20)));
+                    [this.randStep(-500, -83, 100), this.randStep(101 / 2, 83 * 3, 83)],
+                    this.randStep(100, 500, 20)));
             this.killInvisible();
         }, 500);
     }
@@ -32,14 +32,16 @@ class GameBoard {
     winGame() {
         // Stop new enemy creation
         clearInterval(this.enemyEmitter);
-        for (let i in currentGame.allEnemies) { currentGame.allEnemies[i].stop() };
-        alert('You won the game!')
+        for (let i in currentGame.allEnemies) {
+            currentGame.allEnemies[i].stop();
+        }
+        alert('You won the game!');
 
         // Put player to the starting position and restart the game
         player.reset();
         this.startGame();
     }
-    
+
     // Clear unreachable enemies by deleting coorresponding
     // class instance
     killInvisible() {
@@ -91,7 +93,7 @@ class Enemy {
     render() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
-};
+}
 
 class Player {
     constructor() {
@@ -116,7 +118,9 @@ class Player {
         if (this.y <= 0) {
             this.render();
             // Set timeout to render the last frame of the current game
-            setTimeout( (()=>{ currentGame.winGame() }), 1) 
+            setTimeout((() => {
+                currentGame.winGame();
+            }), 1);
         }
     }
 
@@ -124,9 +128,9 @@ class Player {
     render() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
-    
+
     reset() {
-    // Reset player position on the screen
+        // Reset player position on the screen
         player.x = currentGame.numCols / 2 * 83;
         player.y = (currentGame.numRows - 2) * 101;
     }
@@ -136,7 +140,7 @@ class Player {
         switch (e) {
             case 'left':
                 if (this.x >= 101) {
-                    this.x -= 101
+                    this.x -= 101;
                 }
                 break;
 
